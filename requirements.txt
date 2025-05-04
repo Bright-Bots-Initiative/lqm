@@ -5,3 +5,5 @@ pandas
 yfinance
 optuna
 requests
+google-cloud-firestore
+cirq

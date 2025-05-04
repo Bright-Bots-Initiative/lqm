@@ -1,4 +1,5 @@
-Optuna hyper-parameter tuning loop aiming for a 7-day hit-rate ≥ TARGET.
+"""
+Optuna hyper-parameter tuning loop aiming for a 7-day hit-rate >= TARGET.
 Writes best params to best_params.json.
 
 Enhanced with robust logging and error handling for Cloud Run debugging.
@@ -9,6 +10,7 @@ import json
 import sys
 import traceback
 from pathlib import Path
+from google.cloud import firestore
 
 # --- Robust print function ---
 def print_flush(*args, **kwargs):
@@ -19,6 +21,8 @@ def print_flush(*args, **kwargs):
 
 print_flush("--- tune.py starting --- ")
 
+db = None  # Will be initialized only if imports succeed
+
 try:
     print_flush("Importing Optuna...")
     import optuna
@@ -26,6 +30,7 @@ try:
     # Ensure backtest.py is also robust or add try/except here if needed
     from backtest import run_backtest
     print_flush("Imports successful.")
+    db = firestore.Client()
 except ImportError as e:
     print_flush(f"ERROR: Failed to import dependencies: {e}")
     print_flush(traceback.format_exc())
@@ -105,6 +110,15 @@ def main(trials: int, target: float) -> None:
         BEST_FILE.write_text(json.dumps(best_params, indent=2))
         print_flush(f"Best parameters saved ➜ {BEST_FILE.resolve()}")
         print_flush(f"Best trial metric (Hit-rate - Penalty): {study.best_value:.3f}")
+        
+        print_flush("Saving best parameters to Firestore...")
+        doc_ref = db.collection("lqm_tuning_results").document()
+        doc_ref.set({
+            "timestamp": firestore.SERVER_TIMESTAMP,
+            "params": best_params,
+            "hit_rate": study.best_value
+        })
+        print_flush("Best parameters saved to Firestore successfully.")
         # You might want to log the actual best hit rate as well
         # best_hit_rate = study.best_trial.value + abs(target - study.best_trial.value) # Reconstruct if needed
         # print_flush(f"Best trial hit rate: {best_hit_rate:.3f}")
