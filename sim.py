@@ -5,7 +5,7 @@ Generate one–step-ahead 7-day return samples plus model signal.
 The simulation:
   • pulls price history with yfinance
   • builds a minimal feature vector for each day
-  • calls OptionsPredictor.predict() directly (no HTTP)
+  • calls OptionsPredictor.batch_predict() directly (no HTTP)
 """
 from __future__ import annotations
 from datetime import timedelta
@@ -49,7 +49,8 @@ def simulate(ticker: str, start: str, end: str) -> pd.DataFrame:
         close_next  = float(df.loc[tomorrow, "Close"])
 
         feats = _build_features(close_today)
-        signal, _conf = predictor.predict(feats)       # predict returns list → unpack
+        preds, confs = predictor.batch_predict(feats)  # batch_predict returns lists
+        signal, _conf = preds[0], confs[0]             # take first elements since we only have one set of features
         rows.append({
             "date":    today,
             "ret_7d":  (close_next - close_today) / close_today,
