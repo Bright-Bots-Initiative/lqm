@@ -1,0 +1,32 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: lqm-nightly-tune
+  labels:
+    app: lqm
+spec:
+  template:
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+            - image: gcr.io/lqmrocket/lqm-tuner:latest
+              env:
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /secrets/key.json
+                - name: GOOGLE_CLOUD_PROJECT
+                  value: lqmrocket
+              volumeMounts:
+                - name: key
+                  mountPath: /secrets
+                - name: bucket
+                  mountPath: /mnt/bucket
+          volumes:
+            - name: key
+              secret:
+                secretName: lqm-firestore-key      # created by deploy.sh
+            - name: bucket
+              cloudSqlInstance: {}                 # placeholder (not used)
+          timeoutSeconds: 900   # 15 min
+          serviceAccountName: lqm-firestore-sa@lqmrocket.iam.gserviceaccount.com

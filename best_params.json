@@ -1,0 +1,12 @@
+{
+  "ma_trend_weight": -0.423380096389528,
+  "rsi_extreme_weight": 0.5968675794448113,
+  "vol_rank_weight": -0.6261107074195229,
+  "momentum_3d_weight": 0.7913625353336988,
+  "rsi_high": 70,
+  "rsi_low": 30,
+  "iv_rank_high": 0.7,
+  "iv_rank_low": 0.3,
+  "angle_0": 1.0992974742597121,
+  "angle_1": 1.4678081045595353
+}

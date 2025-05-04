@@ -1,0 +1,8 @@
+name: projects/lqmrocket/locations/us-central1/jobs/lqm-nightly-schedule
+schedule: "0 3 * * 2-6"     # Tue-Sat 03:00 UTC (≈ 23:00 ET weekdays)
+timeZone: "UTC"
+httpTarget:
+  uri: https://lqm-nightly-tune-<REGION>-a.run.app/execute
+  httpMethod: POST
+  oidcToken:
+    serviceAccountEmail: lqm-firestore-sa@lqmrocket.iam.gserviceaccount.com
